@@ -8,6 +8,7 @@ const Container = styled.div`
   color: white;
   margin: 20px auto;
   max-width: 600px;
+  position: relative;
 `;
 
 const Title = styled.h2`
@@ -16,7 +17,7 @@ const Title = styled.h2`
   font-weight: 600;
 `;
 
-const WebcamContainer = styled.div`
+const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   position: relative;
   width: 100%;
   max-width: 500px;
@@ -25,11 +26,38 @@ const WebcamContainer = styled.div`
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+  video {
+    width: 100%;
+    border-radius: 15px;
+    transform: ${(props) => (props.mirrored ? "scaleX(-1)" : "none")};
+    filter: ${(props) => props.filter};
+  }
 `;
 
-const WebcamVideo = styled.video`
+const CountdownOverlay = styled.div`
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 6rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 0 0 10px black;
+  z-index: 2;
+`;
+
+const FlashOverlay = styled.div<{ flash: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  border-radius: 15px;
+  height: 100%;
+  background-color: white;
+  opacity: ${(props) => (props.flash ? 1 : 0)};
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 9999;
 `;
 
 const PreviewImg = styled.img`
@@ -75,6 +103,22 @@ const WebcamButton = styled.button`
   }
 `;
 
+const Select = styled.select`
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  background-color: #4caf50;
+  margin: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
 const ErrorMessage = styled.p`
   color: #ff5555;
   font-size: 16px;
@@ -100,6 +144,11 @@ const CameraPage: React.FC = () => {
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [isMirrored, setIsMirrored] = useState<boolean>(true);
+  const [flash, setFlash] = useState<boolean>(false);
+  const [timer, setTimer] = useState<number>(3);
+  const [filter, setFilter] = useState<string>("none");
 
   const numberOfPhotos = template === "diagonal" ? 3 : 4;
 
@@ -131,8 +180,27 @@ const CameraPage: React.FC = () => {
     }
   };
 
+  // Countdown Timer for Capture
+  const startCountdown = () => {
+    let counter = timer;
+    setCountdown(counter);
+
+    const interval = setInterval(() => {
+      counter -= 1;
+      setCountdown(counter);
+
+      if (counter <= 0) {
+        clearInterval(interval);
+        setCountdown(null);
+        triggerFlash(); // Flash effect
+        capturePhoto();
+      }
+    }, 1000);
+  };
+
   // Capture Photo
-  const capture = () => {
+  // Capture Photo
+  const capturePhoto = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
@@ -142,11 +210,32 @@ const CameraPage: React.FC = () => {
       canvas.height = video.videoHeight || 720;
 
       if (ctx) {
+        ctx.save(); // Save context state
+
+        // Mirror image if isMirrored is true
+        if (isMirrored) {
+          ctx.scale(-1, 1);
+          ctx.translate(-canvas.width, 0);
+        }
+
+        // Apply filter to the canvas
+        ctx.filter = filter;
+
+        // Draw the video frame onto the canvas
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        ctx.restore(); // Restore context state
+
         const imageSrc = canvas.toDataURL("image/jpeg");
         setImages((prev) => [...prev, imageSrc]);
       }
     }
+  };
+
+  // Flash Effect
+  const triggerFlash = () => {
+    setFlash(true);
+    setTimeout(() => setFlash(false), 300);
   };
 
   // Reset Photos
@@ -172,19 +261,50 @@ const CameraPage: React.FC = () => {
         Take Photos ({images.length}/{numberOfPhotos})
       </Title>
 
-      <WebcamContainer>
+      <WebcamContainer mirrored={isMirrored} filter={filter}>
         {mediaStream ? (
-          <WebcamVideo ref={videoRef} autoPlay muted playsInline />
+          <video ref={videoRef} autoPlay muted playsInline />
         ) : (
           <ErrorMessage>{errorMessage || "Loading camera..."}</ErrorMessage>
         )}
+        {countdown !== null && <CountdownOverlay>{countdown}</CountdownOverlay>}
       </WebcamContainer>
 
       <WebcamCanvas ref={canvasRef} />
 
+      {/* Flash Overlay */}
+      <FlashOverlay flash={flash} />
+
+      {/* Timer Selection */}
+      <div>
+        <label>Timer: </label>
+        <Select
+          value={timer}
+          onChange={(e) => setTimer(parseInt(e.target.value))}
+        >
+          <option value={3}>3s</option>
+          <option value={5}>5s</option>
+          <option value={10}>10s</option>
+        </Select>
+
+        {/* Filter Selection */}
+        <label>Effect: </label>
+        <Select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="none">None</option>
+          <option value="grayscale(100%)">Black & White (Grayscale)</option>
+          <option value="sepia(100%)">Vintage (Sepia)</option>
+          <option value="blur(5px)">Blur</option>
+          <option value="invert(100%)">Invert Colors</option>
+          <option value="brightness(150%)">Bright</option>
+          <option value="contrast(150%)">High Contrast</option>
+          <option value="saturate(200%)">Vibrant Colors</option>
+          <option value="hue-rotate(90deg)">Retro Effect</option>
+        </Select>
+      </div>
+
       <ButtonsContainer>
         {images.length < numberOfPhotos && mediaStream && (
-          <WebcamButton onClick={capture}>
+          <WebcamButton onClick={startCountdown}>
             Capture Photo ({images.length + 1}/{numberOfPhotos})
           </WebcamButton>
         )}
@@ -194,6 +314,9 @@ const CameraPage: React.FC = () => {
         {images.length === numberOfPhotos && (
           <WebcamButton onClick={handleNext}>Next</WebcamButton>
         )}
+        <WebcamButton onClick={() => setIsMirrored(!isMirrored)}>
+          {isMirrored ? "Disable Mirror" : "Enable Mirror"}
+        </WebcamButton>
       </ButtonsContainer>
 
       {/* Display captured images */}

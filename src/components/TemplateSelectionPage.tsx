@@ -1,6 +1,7 @@
+// TemplateSelectionPage.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Grid, Box, Text, Button, VStack } from "@chakra-ui/react";
+import { Grid, Box, Typography, Button } from "@mui/material";
 
 const TemplateSelectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,32 +11,40 @@ const TemplateSelectionPage: React.FC = () => {
   };
 
   return (
-    <VStack mt={10}>
-      <Text fontSize="2xl" color="white">
+    <Box textAlign="center" mt={10}>
+      <Typography variant="h4" gutterBottom>
         Choose Your Template
-      </Text>
-      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-        <Box
-          border="1px solid white"
-          p={4}
-          borderRadius="md"
-          onClick={() => handleSelectTemplate("diagonal")}
-        >
-          <Text color="white">3 Pictures (Diagonal)</Text>
-        </Box>
-        <Box
-          border="1px solid white"
-          p={4}
-          borderRadius="md"
-          onClick={() => handleSelectTemplate("grid")}
-        >
-          <Text color="white">4 Pictures (2x2)</Text>
-        </Box>
+      </Typography>
+      <Grid container spacing={3} justifyContent="center">
+        <Grid item xs={6}>
+          <Box
+            border={1}
+            borderRadius={2}
+            p={3}
+            textAlign="center"
+            sx={{ cursor: "pointer" }}
+            onClick={() => handleSelectTemplate("diagonal")}
+          >
+            <Typography>3 Pictures (Diagonal)</Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          <Box
+            border={1}
+            borderRadius={2}
+            p={3}
+            textAlign="center"
+            sx={{ cursor: "pointer" }}
+            onClick={() => handleSelectTemplate("grid")}
+          >
+            <Typography>4 Pictures (2x2)</Typography>
+          </Box>
+        </Grid>
       </Grid>
-      <Button colorScheme="blue" onClick={() => navigate("/")}>
+      <Button variant="outlined" sx={{ mt: 3 }} onClick={() => navigate("/")}>
         Back
       </Button>
-    </VStack>
+    </Box>
   );
 };
 

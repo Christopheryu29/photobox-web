@@ -1,23 +1,31 @@
+// LandingPage.tsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Box, Text, Center } from "@chakra-ui/react";
+import { Button, Typography, Box } from "@mui/material";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <Center h="100vh" flexDirection="column">
-      <Text fontSize="4xl" mb={6} color="white">
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      flexDirection="column"
+      height="100vh"
+    >
+      <Typography variant="h2" gutterBottom>
         Welcome to Photobox
-      </Text>
+      </Typography>
       <Button
-        colorScheme="blue"
-        size="lg"
+        variant="contained"
+        color="primary"
+        size="large"
         onClick={() => navigate("/template")}
       >
         Start
       </Button>
-    </Center>
+    </Box>
   );
 };
 

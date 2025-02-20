@@ -1,66 +1,146 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Button,
-  VStack,
-  Text,
-  HStack,
-  Box,
-  Image,
-  Flex,
-  Toast,
-} from "@chakra-ui/react";
+import styled from "styled-components";
+
+// Styled Components
+const Container = styled.div`
+  text-align: center;
+  color: white;
+  margin: 20px auto;
+  max-width: 600px;
+`;
+
+const Title = styled.h2`
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+`;
+
+const WebcamContainer = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  border: 3px solid #4caf50;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+`;
+
+const WebcamVideo = styled.video`
+  width: 100%;
+  border-radius: 15px;
+`;
+
+const PreviewImg = styled.img`
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+`;
+
+const WebcamCanvas = styled.canvas`
+  display: none;
+`;
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+`;
+
+const WebcamButton = styled.button`
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    background-color: #777;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorMessage = styled.p`
+  color: #ff5555;
+  font-size: 16px;
+  text-align: center;
+  margin-top: 10px;
+`;
+
+const ImageGallery = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+`;
 
 const CameraPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const template = location.state?.template || "diagonal";
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [images, setImages] = useState<string[]>([]);
-  const [isCameraReady, setIsCameraReady] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  // Number of photos required based on the template
   const numberOfPhotos = template === "diagonal" ? 3 : 4;
 
-  // Start camera stream
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 1280, height: 720, facingMode: "user" },
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current?.play();
-            setIsCameraReady(true);
-          };
-        }
-      } catch (error) {
-        console.error("Error accessing the camera:", error);
+  // Start Camera
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720, facingMode: "user" },
+        audio: false,
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
       }
-    };
+      setMediaStream(stream);
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error accessing the camera:", error);
+      setErrorMessage(
+        "Failed to access the camera. Please check your permissions."
+      );
+    }
+  };
 
-    startCamera();
+  // Stop Camera
+  const stopCamera = () => {
+    if (mediaStream) {
+      mediaStream.getTracks().forEach((track) => track.stop());
+      setMediaStream(null);
+    }
+  };
 
-    return () => {
-      if (videoRef.current?.srcObject instanceof MediaStream) {
-        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, []);
-
-  // Capture photo
+  // Capture Photo
   const capture = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
     if (video && canvas) {
-      canvas.width = video.videoWidth || 400;
-      canvas.height = video.videoHeight || 300;
-
       const ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageSrc = canvas.toDataURL("image/jpeg");
@@ -69,81 +149,62 @@ const CameraPage: React.FC = () => {
     }
   };
 
-  // Navigate to frame page
+  // Reset Photos
+  const handleReset = () => {
+    setImages([]);
+    startCamera();
+  };
+
+  // Navigate to Next Page
   const handleNext = () => {
+    stopCamera();
     navigate("/frame", { state: { images, template } });
   };
 
-  // Reset photos
-  const handleReset = () => {
-    setImages([]);
-  };
+  useEffect(() => {
+    startCamera();
+    return () => stopCamera();
+  }, []);
 
   return (
-    <VStack>
-      <Text fontSize="2xl" color="white">
+    <Container>
+      <Title>
         Take Photos ({images.length}/{numberOfPhotos})
-      </Text>
+      </Title>
 
-      <Flex
-        justifyContent="center"
-        alignItems="center"
-        borderRadius="md"
-        overflow="hidden"
-        border="2px solid white"
-        bg="black"
-      >
-        {isCameraReady ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            style={{ width: "400px", height: "300px" }}
-          />
+      <WebcamContainer>
+        {mediaStream ? (
+          <WebcamVideo ref={videoRef} autoPlay muted playsInline />
         ) : (
-          <Text color="white">Loading camera...</Text>
+          <ErrorMessage>{errorMessage || "Loading camera..."}</ErrorMessage>
         )}
-      </Flex>
+      </WebcamContainer>
 
-      <canvas ref={canvasRef} style={{ display: "none" }} />
+      <WebcamCanvas ref={canvasRef} />
 
-      <HStack>
-        {images.length < numberOfPhotos && (
-          <Button colorScheme="green" onClick={capture}>
+      <ButtonsContainer>
+        {images.length < numberOfPhotos && mediaStream && (
+          <WebcamButton onClick={capture}>
             Capture Photo ({images.length + 1}/{numberOfPhotos})
-          </Button>
+          </WebcamButton>
         )}
         {images.length > 0 && (
-          <Button colorScheme="red" onClick={handleReset}>
-            Reset
-          </Button>
+          <WebcamButton onClick={handleReset}>Reset</WebcamButton>
         )}
-      </HStack>
-
-      {images.length === numberOfPhotos && (
-        <Button colorScheme="blue" onClick={handleNext}>
-          Next
-        </Button>
-      )}
+        {images.length === numberOfPhotos && (
+          <WebcamButton onClick={handleNext}>Next</WebcamButton>
+        )}
+      </ButtonsContainer>
 
       {/* Display captured images */}
       {images.length > 0 && (
-        <HStack mt={4}>
+        <ImageGallery>
           {images.map((img, index) => (
-            <Box key={index} border="1px solid white" borderRadius="md" p={1}>
-              <Image
-                src={img}
-                alt={`Photo ${index + 1}`}
-                boxSize="100px"
-                borderRadius="md"
-                objectFit="cover"
-              />
-            </Box>
+            <PreviewImg key={index} src={img} alt={`Photo ${index + 1}`} />
           ))}
-        </HStack>
+        </ImageGallery>
       )}
-    </VStack>
+    </Container>
   );
 };
 

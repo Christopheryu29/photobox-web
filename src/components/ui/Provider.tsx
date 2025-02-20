@@ -1,6 +1,28 @@
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+// components/ui/Provider.tsx
 import React from "react";
+import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
+
+const theme = createTheme({
+  palette: {
+    mode: "dark",
+    primary: {
+      main: "#2196f3",
+    },
+    background: {
+      default: "#303030",
+      paper: "#424242",
+    },
+    text: {
+      primary: "#ffffff",
+    },
+  },
+});
 
 export function Provider({ children }: { children: React.ReactNode }) {
-  return <ChakraProvider value={defaultSystem}>{children}</ChakraProvider>;
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
+  );
 }

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Grid, Box, Button, Text, VStack } from "@chakra-ui/react";
+import { Grid, Box, Button, Typography, Container } from "@mui/material";
 
 const FrameSelectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,32 +17,45 @@ const FrameSelectionPage: React.FC = () => {
   };
 
   return (
-    <VStack>
-      <Text fontSize="2xl" color="white">
+    <Container maxWidth="sm" sx={{ textAlign: "center", mt: 5 }}>
+      <Typography variant="h4" gutterBottom>
         Choose Your Frame
-      </Text>
-      <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-        <Box
-          border="1px solid white"
-          p={4}
-          borderRadius="md"
-          onClick={() => handleFrameSelect("frame1")}
-        >
-          <Text color="white">Frame 1</Text>
-        </Box>
-        <Box
-          border="1px solid white"
-          p={4}
-          borderRadius="md"
-          onClick={() => handleFrameSelect("frame2")}
-        >
-          <Text color="white">Frame 2</Text>
-        </Box>
+      </Typography>
+      <Grid container spacing={3} justifyContent="center" sx={{ mt: 3 }}>
+        {["frame1", "frame2"].map((frame) => (
+          <Grid item xs={6} key={frame}>
+            <Box
+              sx={{
+                border: "2px solid",
+                borderColor: selectedFrame === frame ? "primary.main" : "white",
+                borderRadius: 2,
+                p: 2,
+                textAlign: "center",
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+              }}
+              onClick={() => handleFrameSelect(frame)}
+            >
+              <Typography variant="body1">
+                {frame === "frame1" ? "Frame 1" : "Frame 2"}
+              </Typography>
+            </Box>
+          </Grid>
+        ))}
       </Grid>
-      <Button colorScheme="blue" onClick={handleNext}>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleNext}
+        sx={{ mt: 3 }}
+        disabled={!selectedFrame}
+      >
         Next
       </Button>
-    </VStack>
+    </Container>
   );
 };
 

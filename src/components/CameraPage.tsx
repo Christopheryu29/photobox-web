@@ -7,7 +7,7 @@ const Container = styled.div`
   text-align: center;
   color: white;
   margin: 20px auto;
-  max-width: 600px;
+  max-width: 800px;
   position: relative;
 `;
 
@@ -20,7 +20,7 @@ const Title = styled.h2`
 const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   position: relative;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   margin: 0 auto;
   border: 3px solid #4caf50;
   border-radius: 15px;
@@ -37,7 +37,7 @@ const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
 
 const CountdownOverlay = styled.div`
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 6rem;
@@ -60,12 +60,57 @@ const FlashOverlay = styled.div<{ flash: boolean }>`
   z-index: 9999;
 `;
 
-const PreviewImg = styled.img`
+const PreviewImgContainer = styled.div`
+  position: relative;
+  display: inline-block;
+  border: 2px dashed #ccc;
+  border-radius: 10px;
   width: 100px;
   height: 100px;
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: #4caf50;
+  }
+`;
+
+const PreviewImg = styled.img`
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+`;
+
+const Placeholder = styled.div`
+  font-size: 14px;
+  color: #ccc;
+  text-align: center;
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: darkred;
+  }
 `;
 
 const WebcamCanvas = styled.canvas`
@@ -142,13 +187,16 @@ const CameraPage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<(string | null)[]>(
+    new Array(template === "diagonal" ? 3 : 4).fill(null)
+  );
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isMirrored, setIsMirrored] = useState<boolean>(true);
   const [flash, setFlash] = useState<boolean>(false);
   const [timer, setTimer] = useState<number>(3);
   const [filter, setFilter] = useState<string>("none");
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
 
   const numberOfPhotos = template === "diagonal" ? 3 : 4;
 
@@ -181,7 +229,8 @@ const CameraPage: React.FC = () => {
   };
 
   // Countdown Timer for Capture
-  const startCountdown = () => {
+  const startCountdown = (index: number) => {
+    setCurrentIndex(index);
     let counter = timer;
     setCountdown(counter);
 
@@ -192,15 +241,14 @@ const CameraPage: React.FC = () => {
       if (counter <= 0) {
         clearInterval(interval);
         setCountdown(null);
-        triggerFlash(); // Flash effect
-        capturePhoto();
+        triggerFlash();
+        capturePhoto(index);
       }
     }, 1000);
   };
 
   // Capture Photo
-  // Capture Photo
-  const capturePhoto = () => {
+  const capturePhoto = (index: number) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
@@ -210,24 +258,19 @@ const CameraPage: React.FC = () => {
       canvas.height = video.videoHeight || 720;
 
       if (ctx) {
-        ctx.save(); // Save context state
-
-        // Mirror image if isMirrored is true
+        ctx.save();
         if (isMirrored) {
           ctx.scale(-1, 1);
           ctx.translate(-canvas.width, 0);
         }
-
-        // Apply filter to the canvas
         ctx.filter = filter;
-
-        // Draw the video frame onto the canvas
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        ctx.restore(); // Restore context state
+        ctx.restore();
 
         const imageSrc = canvas.toDataURL("image/jpeg");
-        setImages((prev) => [...prev, imageSrc]);
+        const newImages = [...images];
+        newImages[index] = imageSrc;
+        setImages(newImages);
       }
     }
   };
@@ -238,9 +281,16 @@ const CameraPage: React.FC = () => {
     setTimeout(() => setFlash(false), 300);
   };
 
+  // Delete Photo
+  const handleDelete = (index: number) => {
+    const newImages = [...images];
+    newImages[index] = null;
+    setImages(newImages);
+  };
+
   // Reset Photos
   const handleReset = () => {
-    setImages([]);
+    setImages(new Array(numberOfPhotos).fill(null));
     startCamera();
   };
 
@@ -258,7 +308,7 @@ const CameraPage: React.FC = () => {
   return (
     <Container>
       <Title>
-        Take Photos ({images.length}/{numberOfPhotos})
+        Take Photos ({images.filter(Boolean).length}/{numberOfPhotos})
       </Title>
 
       <WebcamContainer mirrored={isMirrored} filter={filter}>
@@ -287,31 +337,30 @@ const CameraPage: React.FC = () => {
           <option value={10}>10s</option>
         </Select>
 
-        {/* Filter Selection */}
         <label>Effect: </label>
         <Select value={filter} onChange={(e) => setFilter(e.target.value)}>
           <option value="none">None</option>
-          <option value="grayscale(100%)">Black & White (Grayscale)</option>
-          <option value="sepia(100%)">Vintage (Sepia)</option>
+          <option value="grayscale(100%)">Black & White</option>
+          <option value="sepia(100%)">Vintage</option>
           <option value="blur(5px)">Blur</option>
-          <option value="invert(100%)">Invert Colors</option>
+          <option value="invert(100%)">Invert</option>
           <option value="brightness(150%)">Bright</option>
           <option value="contrast(150%)">High Contrast</option>
-          <option value="saturate(200%)">Vibrant Colors</option>
-          <option value="hue-rotate(90deg)">Retro Effect</option>
+          <option value="saturate(200%)">Vibrant</option>
+          <option value="hue-rotate(90deg)">Retro</option>
         </Select>
       </div>
 
       <ButtonsContainer>
-        {images.length < numberOfPhotos && mediaStream && (
-          <WebcamButton onClick={startCountdown}>
-            Capture Photo ({images.length + 1}/{numberOfPhotos})
+        {images.some((img) => img === null) && mediaStream && (
+          <WebcamButton onClick={() => startCountdown(images.indexOf(null))}>
+            Capture Photo ({images.filter(Boolean).length + 1}/{numberOfPhotos})
           </WebcamButton>
         )}
-        {images.length > 0 && (
-          <WebcamButton onClick={handleReset}>Reset</WebcamButton>
+        {images.some((img) => img !== null) && (
+          <WebcamButton onClick={handleReset}>Reset All</WebcamButton>
         )}
-        {images.length === numberOfPhotos && (
+        {images.every((img) => img !== null) && (
           <WebcamButton onClick={handleNext}>Next</WebcamButton>
         )}
         <WebcamButton onClick={() => setIsMirrored(!isMirrored)}>
@@ -319,14 +368,30 @@ const CameraPage: React.FC = () => {
         </WebcamButton>
       </ButtonsContainer>
 
-      {/* Display captured images */}
-      {images.length > 0 && (
-        <ImageGallery>
-          {images.map((img, index) => (
-            <PreviewImg key={index} src={img} alt={`Photo ${index + 1}`} />
-          ))}
-        </ImageGallery>
-      )}
+      <ImageGallery>
+        {images.map((img, index) => (
+          <PreviewImgContainer
+            key={index}
+            onClick={() => startCountdown(index)}
+          >
+            {img ? (
+              <>
+                <PreviewImg src={img} alt={`Photo ${index + 1}`} />
+                <DeleteButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(index);
+                  }}
+                >
+                  ✖
+                </DeleteButton>
+              </>
+            ) : (
+              <Placeholder>Capture Photo</Placeholder>
+            )}
+          </PreviewImgContainer>
+        ))}
+      </ImageGallery>
     </Container>
   );
 };

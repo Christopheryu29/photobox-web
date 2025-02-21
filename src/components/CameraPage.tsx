@@ -1,34 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import { Box, Typography } from "@mui/material";
 
 // Styled Components
-const Container = styled.div`
-  text-align: center;
-  color: white;
-  margin: 20px auto;
-  max-width: 800px;
-  position: relative;
-`;
-
-const Title = styled.h2`
-  font-size: 2rem;
-  margin-bottom: 20px;
-  font-weight: 600;
-`;
-
 const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   position: relative;
   width: 100%;
   max-width: 600px;
-  margin: 0 auto;
-  border: 3px solid #4caf50;
-  border-radius: 15px;
+  margin: 20px auto;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 
   video {
-    width: 100%;
+    width: 90%;
     border-radius: 15px;
     transform: ${(props) => (props.mirrored ? "scaleX(-1)" : "none")};
     filter: ${(props) => props.filter};
@@ -63,7 +47,7 @@ const FlashOverlay = styled.div<{ flash: boolean }>`
 const PreviewImgContainer = styled.div`
   position: relative;
   display: inline-block;
-  border: 2px dashed #ccc;
+  border: 2px dashed #ffff;
   border-radius: 10px;
   width: 100px;
   height: 100px;
@@ -75,7 +59,7 @@ const PreviewImgContainer = styled.div`
   transition: border-color 0.3s ease;
 
   &:hover {
-    border-color: #4caf50;
+    border-color: #ffd6e4;
   }
 `;
 
@@ -86,8 +70,10 @@ const PreviewImg = styled.img`
 `;
 
 const Placeholder = styled.div`
-  font-size: 14px;
-  color: #ccc;
+  font-size: 16px;
+  font-weight: 50;
+  font-family: serif;
+  color: black;
   text-align: center;
 `;
 
@@ -99,10 +85,8 @@ const DeleteButton = styled.button`
   color: white;
   border: none;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-  font-weight: bold;
+  width: 15px;
+  height: 15px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -120,26 +104,47 @@ const WebcamCanvas = styled.canvas`
 const ButtonsContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 20px;
+  margin: 10px 0;
   flex-wrap: wrap;
 `;
 
-const WebcamButton = styled.button`
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 20px;
+const CaptureButton = styled.button`
+  color: black;
+  background-color: white;
+  border-radius: 10px;
   padding: 12px 20px;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 600;
+  font-family: serif;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid #ffff;
 
   &:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
+    background-color: #ffd6e4;
+  }
+
+  &:disabled {
+    background-color: #777;
+    cursor: not-allowed;
+  }
+`;
+
+const WebcamButton = styled.button`
+  color: black;
+  background-color: transparent;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 17px;
+  font-weight: 50;
+  font-family: serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid #ffff;
+
+  &:hover {
+    background-color: #ffd6e4;
   }
 
   &:disabled {
@@ -152,15 +157,17 @@ const Select = styled.select`
   padding: 10px;
   border-radius: 10px;
   border: none;
-  font-size: 16px;
-  font-weight: 600;
-  color: white;
-  background-color: #4caf50;
+  font-size: 17px;
+  font-weight: 50;
+  font-family: serif;
+  color: black;
+  background-color: transparent;
   margin: 5px;
   cursor: pointer;
+  border: 2px solid #ffff;
 
   &:hover {
-    background-color: #45a049;
+    background-color: #ffd6e4;
   }
 `;
 
@@ -306,10 +313,10 @@ const CameraPage: React.FC = () => {
   }, []);
 
   return (
-    <Container>
-      <Title>
+    <Box height="85vh" textAlign="center" mt={10}>
+      <Typography variant="h4" color="primary" mb={4}>
         Take Photos ({images.filter(Boolean).length}/{numberOfPhotos})
-      </Title>
+      </Typography>
 
       <WebcamContainer mirrored={isMirrored} filter={filter}>
         {mediaStream ? (
@@ -326,39 +333,50 @@ const CameraPage: React.FC = () => {
       <FlashOverlay flash={flash} />
 
       {/* Timer Selection */}
-      <div>
-        <label>Timer: </label>
-        <Select
-          value={timer}
-          onChange={(e) => setTimer(parseInt(e.target.value))}
-        >
-          <option value={3}>3s</option>
-          <option value={5}>5s</option>
-          <option value={10}>10s</option>
-        </Select>
+      <Box 
+        display="flex" 
+        flexDirection="row" 
+        gap={3}
+        alignContent={"center"}
+        justifyContent={"center"}
+      >
+        <Box display="flex" alignItems="center" gap={2}>
+          <label>Timer: </label>
+          <Select
+            value={timer}
+            onChange={(e) => setTimer(parseInt(e.target.value))}
+          >
+            <option value={3}>3s</option>
+            <option value={5}>5s</option>
+            <option value={10}>10s</option>
+          </Select>
+        </Box>
 
-        <label>Effect: </label>
-        <Select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="none">None</option>
-          <option value="grayscale(100%)">Black & White</option>
-          <option value="sepia(100%)">Vintage</option>
-          <option value="blur(5px)">Blur</option>
-          <option value="invert(100%)">Invert</option>
-          <option value="brightness(150%)">Bright</option>
-          <option value="contrast(150%)">High Contrast</option>
-          <option value="saturate(200%)">Vibrant</option>
-          <option value="hue-rotate(90deg)">Retro</option>
-        </Select>
-      </div>
+        <Box display="flex" alignItems="center" gap={2}>
+          <label>Effect: </label>
+          <Select value={filter} onChange={(e) => setFilter(e.target.value)}>
+            <option value="none">None</option>
+            <option value="grayscale(100%)">Black & White</option>
+            <option value="sepia(100%)">Vintage</option>
+            <option value="blur(5px)">Blur</option>
+            <option value="invert(100%)">Invert</option>
+            <option value="brightness(150%)">Bright</option>
+            <option value="contrast(150%)">High Contrast</option>
+            <option value="saturate(200%)">Vibrant</option>
+            <option value="hue-rotate(90deg)">Retro</option>
+          </Select>
+        </Box>
+      </Box>
+
 
       <ButtonsContainer>
-        {images.some((img) => img === null) && mediaStream && (
-          <WebcamButton onClick={() => startCountdown(images.indexOf(null))}>
-            Capture Photo ({images.filter(Boolean).length + 1}/{numberOfPhotos})
-          </WebcamButton>
-        )}
         {images.some((img) => img !== null) && (
           <WebcamButton onClick={handleReset}>Reset All</WebcamButton>
+        )}
+        {images.some((img) => img === null) && mediaStream && (
+          <CaptureButton onClick={() => startCountdown(images.indexOf(null))}>
+            Capture Photo ({images.filter(Boolean).length + 1}/{numberOfPhotos})
+          </CaptureButton>
         )}
         {images.every((img) => img !== null) && (
           <WebcamButton onClick={handleNext}>Next</WebcamButton>
@@ -392,7 +410,7 @@ const CameraPage: React.FC = () => {
           </PreviewImgContainer>
         ))}
       </ImageGallery>
-    </Container>
+    </Box>
   );
 };
 

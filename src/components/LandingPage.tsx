@@ -12,13 +12,24 @@ const LandingPage: React.FC = () => {
       alignItems="center"
       justifyContent="center"
       flexDirection="column"
-      height="100vh"
+      height="95vh"
     >
-      <Typography variant="h2" gutterBottom>
-        Welcome to Photobox
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        flexDirection="column"
+        marginBottom={3}>
+      <Typography variant="h2" color="primary">
+        Welcome
       </Typography>
+      <Typography variant="h6" color="primary">
+        Capture your moment anytime, anywhere
+      </Typography>
+      </Box>
+
       <Button
-        variant="contained"
+        variant="outlined"
         color="primary"
         size="large"
         onClick={() => navigate("/template")}

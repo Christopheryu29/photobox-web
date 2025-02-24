@@ -51,7 +51,7 @@ const TemplateSelectionPage: React.FC = () => {
             <img 
               src="/grid.png" 
               alt="4 Pictures (2x2)" 
-              style={{ width: "100%", height: "100%", borderRadius: "5px" }} 
+              style={{ width: "45%", height: "100%", borderRadius: "5px" }} 
             />
             <Typography color="primary" mt={2}>
               4 Pictures (2x2)

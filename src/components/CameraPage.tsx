@@ -379,7 +379,7 @@ const CameraPage: React.FC = () => {
           </CaptureButton>
         )}
         {images.every((img) => img !== null) && (
-          <WebcamButton onClick={handleNext}>Next</WebcamButton>
+          <CaptureButton onClick={handleNext}>Next</CaptureButton>
         )}
         <WebcamButton onClick={() => setIsMirrored(!isMirrored)}>
           {isMirrored ? "Disable Mirror" : "Enable Mirror"}

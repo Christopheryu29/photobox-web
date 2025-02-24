@@ -14,7 +14,7 @@ const theme = createTheme({
       main: '#1a1919',  // Example primary color
     },
     secondary: {
-      main: '#19857b',  // Example secondary color
+      main: '#ffff',  // Example secondary color
     },
     customColor: {  // Your custom color name
       main: '#FF5733',  // Custom color

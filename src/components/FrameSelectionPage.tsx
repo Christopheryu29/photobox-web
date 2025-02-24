@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Grid,
-  Box,
-  Button,
-  Typography,
-  Container,
-} from "@mui/material";
+import { Grid, Box, Button, Typography, Container } from "@mui/material";
 
-const frameColors = ["#ffffff", "#000000", "#4d0000", "#0e1b45", "#1e3d1b", "#fce6f2"];
+const frameColors = [
+  "#ffffff",
+  "#000000",
+  "#4d0000",
+  "#0e1b45",
+  "#1e3d1b",
+  "#fce6f2",
+];
 const textures3 = [
   "./texture/3/1.png",
   "./texture/3/2.png",
@@ -36,48 +37,75 @@ const FrameSelectionPage: React.FC = () => {
   const [selectedFrameColor, setSelectedFrameColor] =
     useState<string>("#ffffff");
   const [selectedTexture, setSelectedTexture] = useState<string | null>(null);
-  const [frameWidth, setFrameWidth] = useState<number>(20);
+  const [frameWidth] = useState<number>(20); // Smaller frame width
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const pixelRatio = Math.max(window.devicePixelRatio || 1, 2); // Improved pixel ratio for better clarity
+  const currentDate = new Date().toLocaleDateString(); // Get current date
 
   const generatePreview = () => {
     const canvas = canvasRef.current;
     if (!canvas || !images || images.length === 0) return;
-  
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-  
+
+    ctx.imageSmoothingEnabled = true; // Enable image smoothing
+    ctx.imageSmoothingQuality = "high"; // Use high-quality smoothing
+
     const gap = 10;
-    let cols = images.length === 4 ? 2 : 1;
-    let rows = images.length === 4 ? 2 : 3;
-    let photoWidth = images.length === 4 ? 200 : 260;
-    let photoHeight = images.length === 4 ? 260 : 160;
-    let canvasWidth = images.length === 4 ? 450 : 300;
-    let canvasHeight = 650;
-  
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-  
+    const cols = images.length === 4 ? 2 : 1;
+    const rows = images.length === 4 ? 2 : 3;
+
+    // Small size but high resolution using pixel ratio
+    const photoWidth = images.length === 4 ? 250 : 320;
+    const photoHeight = images.length === 4 ? 320 : 200;
+
+    // Additional space for "Photobox" and date
+    const textHeight = 100;
+    const canvasWidth = cols * photoWidth + (cols - 1) * gap + 2 * frameWidth;
+    const canvasHeight =
+      rows * photoHeight + (rows - 1) * gap + 2 * frameWidth + textHeight;
+
+    // Set canvas size for high-resolution rendering
+    canvas.width = canvasWidth * pixelRatio;
+    canvas.height = canvasHeight * pixelRatio;
+
+    // Scale canvas to display smaller visually but keep high resolution
+    canvas.style.width = `${canvasWidth}px`;
+    canvas.style.height = `${canvasHeight}px`;
+    ctx.scale(pixelRatio, pixelRatio);
+
     if (selectedTexture) {
       const img = new Image();
       img.src = selectedTexture;
       img.onload = () => {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        drawImages(ctx, photoWidth, photoHeight, gap, cols, rows);
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          canvas.width / pixelRatio,
+          canvas.height / pixelRatio
+        );
+        drawImages(ctx, photoWidth, photoHeight, gap, cols, rows, textHeight);
+        drawText(ctx, canvasWidth, canvasHeight, textHeight);
       };
     } else {
       ctx.fillStyle = selectedFrameColor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      drawImages(ctx, photoWidth, photoHeight, gap, cols, rows);
+      ctx.fillRect(0, 0, canvas.width / pixelRatio, canvas.height / pixelRatio);
+      drawImages(ctx, photoWidth, photoHeight, gap, cols, rows, textHeight);
+      drawText(ctx, canvasWidth, canvasHeight, textHeight);
     }
   };
-  
+
   const drawImages = (
     ctx: CanvasRenderingContext2D,
     photoWidth: number,
     photoHeight: number,
     gap: number,
     cols: number,
-    rows: number
+    rows: number,
+    textHeight: number
   ) => {
     images.forEach((imgSrc: string, index: number) => {
       const img = new Image();
@@ -87,58 +115,60 @@ const FrameSelectionPage: React.FC = () => {
         const row = Math.floor(index / cols);
         const x = frameWidth + col * (photoWidth + gap);
         const y = frameWidth + row * (photoHeight + gap);
-  
-        // Determine the scale and position to crop the image
+
         const scaleX = img.width / photoWidth;
         const scaleY = img.height / photoHeight;
         let cropWidth, cropHeight, cropX, cropY;
-  
+
         if (scaleX > scaleY) {
-          // Image is wider than needed
           cropHeight = img.height;
           cropWidth = cropHeight * (photoWidth / photoHeight);
           cropX = (img.width - cropWidth) / 2;
           cropY = 0;
         } else {
-          // Image is taller than needed
           cropWidth = img.width;
           cropHeight = cropWidth * (photoHeight / photoWidth);
           cropY = (img.height - cropHeight) / 2;
           cropX = 0;
         }
-  
-        // Drawing the cropped image to the canvas
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(x, y, photoWidth, photoHeight); // Define the clipping path
-        ctx.clip(); // Apply clipping to ensure only this part of the canvas shows the image
-  
-        // Draw the image part on canvas
+
         ctx.drawImage(
-          img,       
-          cropX,     
-          cropY,     
-          cropWidth, 
-          cropHeight, 
-          x,         
-          y,         
-          photoWidth, 
-          photoHeight 
+          img,
+          cropX,
+          cropY,
+          cropWidth,
+          cropHeight,
+          x,
+          y,
+          photoWidth,
+          photoHeight
         );
-  
-        ctx.restore();
       };
     });
   };
-  
+
+  const drawText = (
+    ctx: CanvasRenderingContext2D,
+    canvasWidth: number,
+    canvasHeight: number,
+    textHeight: number
+  ) => {
+    const textX = canvasWidth / 2;
+    const textY = canvasHeight - textHeight + 40;
+
+    ctx.font = "bold 30px Arial";
+    ctx.fillStyle = "#000000";
+    ctx.textAlign = "center";
+    ctx.fillText("Photobox", textX, textY);
+
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "#555555";
+    ctx.fillText(currentDate, textX, textY + 40);
+  };
+
   useEffect(() => {
     generatePreview();
-  }, [
-    selectedFrameColor,
-    selectedTexture,
-    frameWidth,
-    images,
-  ]);
+  }, [selectedFrameColor, selectedTexture, images]);
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
@@ -148,21 +178,20 @@ const FrameSelectionPage: React.FC = () => {
       link.download = "photobooth.png";
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link); 
-  
+      document.body.removeChild(link);
+
       setTimeout(() => {
-        navigate('/');
+        navigate("/");
       }, 500);
     }
-  };  
+  };
 
   return (
     <Container maxWidth="lg" sx={{ textAlign: "center", mt: 5 }}>
       <Typography variant="h4" gutterBottom>
         Choose Your Frame
       </Typography>
-  
-      {/* Flexbox Layout for Left (Canvas) and Right (Options) */}
+
       <Box
         sx={{
           display: "flex",
@@ -174,24 +203,34 @@ const FrameSelectionPage: React.FC = () => {
         }}
       >
         {/* Left Side: Canvas */}
-        <Box
-        sx={{
-          justifyContent:"center",
-          alignItems: "center",
-        }}
-        >
-        <canvas ref={canvasRef} />
+        <Box>
+          <canvas ref={canvasRef} />
         </Box>
-  
+
         {/* Right Side: Options */}
-        <Box sx={{ width: "50%", textAlign: "left", display:"flex", flexDirection:"column", 
-          justifyContent:"center", alignItems: "center", margin:"auto"}}>
-          
+        <Box
+          sx={{
+            width: "50%",
+            textAlign: "left",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            margin: "auto",
+          }}
+        >
           {/* Frame Color Options */}
-          <Typography variant="h6">
-            Select Frame Color:
-          </Typography>
-          <Grid container spacing={1} sx={{ mt: 1, mb: 2, justifyContent:"center", alignItems: "center"}}>
+          <Typography variant="h6">Select Frame Color:</Typography>
+          <Grid
+            container
+            spacing={1}
+            sx={{
+              mt: 1,
+              mb: 2,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             {frameColors.map((color) => (
               <Grid item key={color}>
                 <Box
@@ -206,45 +245,60 @@ const FrameSelectionPage: React.FC = () => {
                         : "1px solid gray",
                     cursor: "pointer",
                   }}
-                  onClick={() => {setSelectedFrameColor(color);
+                  onClick={() => {
+                    setSelectedFrameColor(color);
                     setSelectedTexture(null);
                   }}
                 />
               </Grid>
             ))}
           </Grid>
-  
+
           {/* Frame Texture Options */}
           <Typography variant="h6" sx={{ mt: 3 }}>
             Select Background Texture:
           </Typography>
-          <Grid container spacing={1} sx={{ mt: 1, mb: 2, justifyContent:"center", alignItems: "center"}}>
-          {(images.length === 3 ? textures3 : textures4).map((texture: string) => (
-            <Grid item key={texture}>
-              <Box sx={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                backgroundImage: `url(${texture})`,
-                backgroundSize: "cover",
-                border:
-                  selectedTexture === texture
-                    ? "3px solid black"
-                    : "1px solid gray",
-                cursor: "pointer",
-              }} onClick={() => setSelectedTexture(texture)} />
-            </Grid>
-          ))}
+          <Grid
+            container
+            spacing={1}
+            sx={{
+              mt: 1,
+              mb: 2,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {(images.length === 3 ? textures3 : textures4).map(
+              (texture: string) => (
+                <Grid item key={texture}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      backgroundImage: `url(${texture})`,
+                      backgroundSize: "cover",
+                      border:
+                        selectedTexture === texture
+                          ? "3px solid black"
+                          : "1px solid gray",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setSelectedTexture(texture)}
+                  />
+                </Grid>
+              )
+            )}
           </Grid>
 
           {/* Buttons */}
-          <Box sx={{ mt: 3, justifyContent:"center", alignItems: "center"}}>
+          <Box sx={{ mt: 3 }}>
             <Button
               variant="contained"
               color="secondary"
               size="large"
               onClick={handleDownload}
-              sx={{boxShadow: "none", textTransform: "none"}}
+              sx={{ boxShadow: "none", textTransform: "none" }}
             >
               Download
             </Button>
@@ -253,7 +307,6 @@ const FrameSelectionPage: React.FC = () => {
       </Box>
     </Container>
   );
-  
 };
 
 export default FrameSelectionPage;

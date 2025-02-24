@@ -211,7 +211,7 @@ const CameraPage: React.FC = () => {
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720, facingMode: "user" },
+        video: { width: 1920, height: 1080, facingMode: "user" },
         audio: false,
       });
       if (videoRef.current) {
@@ -255,14 +255,16 @@ const CameraPage: React.FC = () => {
   };
 
   // Capture Photo
+
   const capturePhoto = (index: number) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
     if (video && canvas) {
       const ctx = canvas.getContext("2d");
-      canvas.width = video.videoWidth || 1280;
-      canvas.height = video.videoHeight || 720;
+      // Set a higher resolution canvas for better image quality
+      canvas.width = 1920;
+      canvas.height = 1080;
 
       if (ctx) {
         ctx.save();
@@ -274,7 +276,8 @@ const CameraPage: React.FC = () => {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         ctx.restore();
 
-        const imageSrc = canvas.toDataURL("image/jpeg");
+        // Use PNG for better quality
+        const imageSrc = canvas.toDataURL("image/png");
         const newImages = [...images];
         newImages[index] = imageSrc;
         setImages(newImages);
@@ -333,9 +336,9 @@ const CameraPage: React.FC = () => {
       <FlashOverlay flash={flash} />
 
       {/* Timer Selection */}
-      <Box 
-        display="flex" 
-        flexDirection="row" 
+      <Box
+        display="flex"
+        flexDirection="row"
         gap={3}
         alignContent={"center"}
         justifyContent={"center"}
@@ -367,7 +370,6 @@ const CameraPage: React.FC = () => {
           </Select>
         </Box>
       </Box>
-
 
       <ButtonsContainer>
         {images.some((img) => img !== null) && (

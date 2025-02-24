@@ -1,6 +1,6 @@
 // App.tsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Container } from "@mui/material";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme";
@@ -21,7 +21,6 @@ const App: React.FC = () => {
             <Route path="/template" element={<TemplateSelectionPage />} />
             <Route path="/camera" element={<CameraPage />} />
             <Route path="/frame" element={<FrameSelectionPage />} />
-            <Route path="/download" element={<DownloadPage />} />
           </Routes>
         </Router>
         <Footer />

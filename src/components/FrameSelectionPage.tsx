@@ -140,13 +140,21 @@ const FrameSelectionPage: React.FC = () => {
     images,
   ]);
 
-  const handleNext = () => {
+  const handleDownload = () => {
     const canvas = canvasRef.current;
     if (canvas) {
-      const finalImage = canvas.toDataURL("image/jpeg");
-      navigate("/download", { state: { finalImage, template } });
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = "photobooth.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link); 
+  
+      setTimeout(() => {
+        navigate('/');
+      }, 500);
     }
-  };
+  };  
 
   return (
     <Container maxWidth="lg" sx={{ textAlign: "center", mt: 5 }}>
@@ -234,11 +242,11 @@ const FrameSelectionPage: React.FC = () => {
             <Button
               variant="contained"
               color="secondary"
-              size="medium"
-              onClick={handleNext}
+              size="large"
+              onClick={handleDownload}
               sx={{boxShadow: "none", textTransform: "none"}}
             >
-              Next
+              Download
             </Button>
           </Box>
         </Box>

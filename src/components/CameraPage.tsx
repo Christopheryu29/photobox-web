@@ -1,18 +1,20 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useMediaQuery } from "@mui/material";
 
 // Styled Components
 const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   position: relative;
   width: 100%;
-  max-width: 600px;
+  max-width: ${(props) => (props.theme.isMobile ? "100%" : "600px")};
   margin: 20px auto;
   overflow: hidden;
 
   video {
-    width: 90%;
+    width: 100%;
     border-radius: 15px;
     transform: ${(props) => (props.mirrored ? "scaleX(-1)" : "none")};
     filter: ${(props) => props.filter};
@@ -24,7 +26,7 @@ const CountdownOverlay = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 6rem;
+  font-size: 4rem;
   font-weight: bold;
   color: white;
   text-shadow: 0 0 10px black;
@@ -46,17 +48,15 @@ const FlashOverlay = styled.div<{ flash: boolean }>`
 
 const PreviewImgContainer = styled.div`
   position: relative;
-  display: inline-block;
   border: 2px dashed #ffff;
   border-radius: 10px;
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   overflow: hidden;
-  transition: border-color 0.3s ease;
 
   &:hover {
     border-color: #ffd6e4;
@@ -70,9 +70,8 @@ const PreviewImg = styled.img`
 `;
 
 const Placeholder = styled.div`
-  font-size: 16px;
-  font-weight: 50;
-  font-family: serif;
+  font-size: 14px;
+  font-weight: 500;
   color: black;
   text-align: center;
 `;
@@ -88,9 +87,6 @@ const DeleteButton = styled.button`
   width: 15px;
   height: 15px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   &:hover {
     background-color: darkred;
@@ -104,7 +100,7 @@ const WebcamCanvas = styled.canvas`
 const ButtonsContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 10px;
   margin: 10px 0;
   flex-wrap: wrap;
 `;
@@ -112,13 +108,11 @@ const ButtonsContainer = styled.div`
 const CaptureButton = styled.button`
   color: black;
   background-color: white;
-  border-radius: 10px;
-  padding: 12px 20px;
-  font-size: 20px;
+  border-radius: 8px;
+  padding: ${(props) => (props.theme.isMobile ? "10px 16px" : "12px 20px")};
+  font-size: ${(props) => (props.theme.isMobile ? "16px" : "20px")};
   font-weight: 600;
-  font-family: serif;
   cursor: pointer;
-  transition: all 0.3s ease;
   border: 2px solid #ffff;
 
   &:hover {
@@ -134,13 +128,10 @@ const CaptureButton = styled.button`
 const WebcamButton = styled.button`
   color: black;
   background-color: transparent;
-  border-radius: 10px;
-  padding: 12px 20px;
-  font-size: 17px;
-  font-weight: 50;
-  font-family: serif;
+  border-radius: 8px;
+  padding: ${(props) => (props.theme.isMobile ? "8px 14px" : "12px 20px")};
+  font-size: ${(props) => (props.theme.isMobile ? "14px" : "17px")};
   cursor: pointer;
-  transition: all 0.3s ease;
   border: 2px solid #ffff;
 
   &:hover {
@@ -154,16 +145,11 @@ const WebcamButton = styled.button`
 `;
 
 const Select = styled.select`
-  padding: 10px;
-  border-radius: 10px;
+  padding: ${(props) => (props.theme.isMobile ? "6px" : "10px")};
+  border-radius: 8px;
   border: none;
-  font-size: 17px;
-  font-weight: 50;
-  font-family: serif;
+  font-size: ${(props) => (props.theme.isMobile ? "14px" : "17px")};
   color: black;
-  background-color: transparent;
-  margin: 5px;
-  cursor: pointer;
   border: 2px solid #ffff;
 
   &:hover {
@@ -173,7 +159,7 @@ const Select = styled.select`
 
 const ErrorMessage = styled.p`
   color: #ff5555;
-  font-size: 16px;
+  font-size: 14px;
   text-align: center;
   margin-top: 10px;
 `;
@@ -181,8 +167,8 @@ const ErrorMessage = styled.p`
 const ImageGallery = styled.div`
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 16px;
   flex-wrap: wrap;
 `;
 
@@ -190,6 +176,7 @@ const CameraPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const template = location.state?.template || "diagonal";
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -211,7 +198,11 @@ const CameraPage: React.FC = () => {
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1920, height: 1080, facingMode: "user" },
+        video: {
+          width: isMobile ? 1280 : 1920,
+          height: isMobile ? 720 : 1080,
+          facingMode: "user",
+        },
         audio: false,
       });
       if (videoRef.current) {
@@ -255,16 +246,15 @@ const CameraPage: React.FC = () => {
   };
 
   // Capture Photo
-
   const capturePhoto = (index: number) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
     if (video && canvas) {
       const ctx = canvas.getContext("2d");
-      // Set a higher resolution canvas for better image quality
-      canvas.width = 1920;
-      canvas.height = 1080;
+      // Set canvas resolution based on device
+      canvas.width = isMobile ? 1280 : 1920;
+      canvas.height = isMobile ? 720 : 1080;
 
       if (ctx) {
         ctx.save();
@@ -276,7 +266,6 @@ const CameraPage: React.FC = () => {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         ctx.restore();
 
-        // Use PNG for better quality
         const imageSrc = canvas.toDataURL("image/png");
         const newImages = [...images];
         newImages[index] = imageSrc;
@@ -316,8 +305,8 @@ const CameraPage: React.FC = () => {
   }, []);
 
   return (
-    <Box height="85vh" textAlign="center" mt={10}>
-      <Typography variant="h4" color="primary" mb={4}>
+    <Box height="85vh" textAlign="center" mt={isMobile ? 5 : 10}>
+      <Typography variant={isMobile ? "h5" : "h4"} color="primary" mb={4}>
         Take Photos ({images.filter(Boolean).length}/{numberOfPhotos})
       </Typography>
 
@@ -340,11 +329,11 @@ const CameraPage: React.FC = () => {
         display="flex"
         flexDirection="row"
         gap={3}
-        alignContent={"center"}
         justifyContent={"center"}
+        flexWrap="wrap"
       >
         <Box display="flex" alignItems="center" gap={2}>
-          <label>Timer: </label>
+          <label>Timer:</label>
           <Select
             value={timer}
             onChange={(e) => setTimer(parseInt(e.target.value))}
@@ -356,7 +345,7 @@ const CameraPage: React.FC = () => {
         </Box>
 
         <Box display="flex" alignItems="center" gap={2}>
-          <label>Effect: </label>
+          <label>Effect:</label>
           <Select value={filter} onChange={(e) => setFilter(e.target.value)}>
             <option value="none">None</option>
             <option value="grayscale(100%)">Black & White</option>
@@ -407,7 +396,7 @@ const CameraPage: React.FC = () => {
                 </DeleteButton>
               </>
             ) : (
-              <Placeholder>Capture Photo</Placeholder>
+              <Placeholder>Capture</Placeholder>
             )}
           </PreviewImgContainer>
         ))}

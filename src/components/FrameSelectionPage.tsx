@@ -1,6 +1,15 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Grid, Box, Button, Typography, Container } from "@mui/material";
+import {
+  Grid,
+  Box,
+  Button,
+  Typography,
+  Container,
+  useMediaQuery,
+} from "@mui/material";
 
 const frameColors = [
   "#ffffff",
@@ -10,6 +19,7 @@ const frameColors = [
   "#1e3d1b",
   "#fce6f2",
 ];
+
 const textures3 = [
   "./texture/3/1.png",
   "./texture/3/2.png",
@@ -37,10 +47,11 @@ const FrameSelectionPage: React.FC = () => {
   const [selectedFrameColor, setSelectedFrameColor] =
     useState<string>("#ffffff");
   const [selectedTexture, setSelectedTexture] = useState<string | null>(null);
-  const [frameWidth] = useState<number>(20); // Smaller frame width
+  const [frameWidth] = useState<number>(15); // Smaller frame width for mobile
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const pixelRatio = Math.max(window.devicePixelRatio || 1, 2); // Improved pixel ratio for better clarity
+  const isMobile = useMediaQuery("(max-width: 768px)"); // Mobile breakpoint
+  const pixelRatio = isMobile ? 2 : Math.max(window.devicePixelRatio || 1, 2); // Optimize pixel ratio for mobile
   const currentDate = new Date().toLocaleDateString(); // Get current date
 
   const generatePreview = () => {
@@ -53,16 +64,16 @@ const FrameSelectionPage: React.FC = () => {
     ctx.imageSmoothingEnabled = true; // Enable image smoothing
     ctx.imageSmoothingQuality = "high"; // Use high-quality smoothing
 
-    const gap = 10;
+    const gap = isMobile ? 8 : 10; // Smaller gap for mobile
     const cols = images.length === 4 ? 2 : 1;
     const rows = images.length === 4 ? 2 : 3;
 
-    // Small size but high resolution using pixel ratio
-    const photoWidth = images.length === 4 ? 250 : 320;
-    const photoHeight = images.length === 4 ? 320 : 200;
+    // Responsive size based on device
+    const photoWidth = isMobile ? 150 : images.length === 4 ? 250 : 320;
+    const photoHeight = isMobile ? 180 : images.length === 4 ? 320 : 200;
 
     // Additional space for "Photobox" and date
-    const textHeight = 100;
+    const textHeight = 80;
     const canvasWidth = cols * photoWidth + (cols - 1) * gap + 2 * frameWidth;
     const canvasHeight =
       rows * photoHeight + (rows - 1) * gap + 2 * frameWidth + textHeight;
@@ -72,7 +83,7 @@ const FrameSelectionPage: React.FC = () => {
     canvas.height = canvasHeight * pixelRatio;
 
     // Scale canvas to display smaller visually but keep high resolution
-    canvas.style.width = `${canvasWidth}px`;
+    canvas.style.width = isMobile ? "100%" : `${canvasWidth}px`;
     canvas.style.height = `${canvasHeight}px`;
     ctx.scale(pixelRatio, pixelRatio);
 
@@ -154,16 +165,16 @@ const FrameSelectionPage: React.FC = () => {
     textHeight: number
   ) => {
     const textX = canvasWidth / 2;
-    const textY = canvasHeight - textHeight + 40;
+    const textY = canvasHeight - textHeight + 30;
 
-    ctx.font = "bold 30px Arial";
+    ctx.font = isMobile ? "bold 20px Arial" : "bold 30px Arial";
     ctx.fillStyle = "#000000";
     ctx.textAlign = "center";
     ctx.fillText("Photobox", textX, textY);
 
-    ctx.font = "20px Arial";
+    ctx.font = isMobile ? "16px Arial" : "20px Arial";
     ctx.fillStyle = "#555555";
-    ctx.fillText(currentDate, textX, textY + 40);
+    ctx.fillText(currentDate, textX, textY + 30);
   };
 
   useEffect(() => {
@@ -187,56 +198,54 @@ const FrameSelectionPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ textAlign: "center", mt: 5 }}>
-      <Typography variant="h4" gutterBottom>
+    <Container maxWidth="lg" sx={{ textAlign: "center", mt: isMobile ? 2 : 5 }}>
+      <Typography variant="h5" gutterBottom>
         Choose Your Frame
       </Typography>
 
       <Box
         sx={{
           display: "flex",
-          gap: 10,
+          flexDirection: isMobile ? "column" : "row",
+          gap: 3,
           justifyContent: "center",
-          alignItems: "flex-start",
+          alignItems: "center",
           mt: 3,
           mb: 5,
         }}
       >
         {/* Left Side: Canvas */}
-        <Box>
-          <canvas ref={canvasRef} />
+        <Box sx={{ width: isMobile ? "100%" : "auto" }}>
+          <canvas
+            ref={canvasRef}
+            style={{ borderRadius: "10px", border: "1px solid #ccc" }}
+          />
         </Box>
 
         {/* Right Side: Options */}
         <Box
           sx={{
-            width: "50%",
-            textAlign: "left",
+            width: isMobile ? "100%" : "50%",
+            textAlign: "center",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            margin: "auto",
           }}
         >
           {/* Frame Color Options */}
-          <Typography variant="h6">Select Frame Color:</Typography>
+          <Typography variant="h6">Frame Color</Typography>
           <Grid
             container
             spacing={1}
-            sx={{
-              mt: 1,
-              mb: 2,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            sx={{ mt: 1, mb: 2, justifyContent: "center" }}
           >
             {frameColors.map((color) => (
               <Grid item key={color}>
                 <Box
                   sx={{
-                    width: 40,
-                    height: 40,
+                    width: 35,
+                    height: 35,
                     borderRadius: "50%",
                     backgroundColor: color,
                     border:
@@ -255,26 +264,19 @@ const FrameSelectionPage: React.FC = () => {
           </Grid>
 
           {/* Frame Texture Options */}
-          <Typography variant="h6" sx={{ mt: 3 }}>
-            Select Background Texture:
-          </Typography>
+          <Typography variant="h6">Background Texture</Typography>
           <Grid
             container
             spacing={1}
-            sx={{
-              mt: 1,
-              mb: 2,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            sx={{ mt: 1, mb: 2, justifyContent: "center" }}
           >
             {(images.length === 3 ? textures3 : textures4).map(
               (texture: string) => (
                 <Grid item key={texture}>
                   <Box
                     sx={{
-                      width: 40,
-                      height: 40,
+                      width: 35,
+                      height: 35,
                       borderRadius: "50%",
                       backgroundImage: `url(${texture})`,
                       backgroundSize: "cover",
@@ -298,7 +300,11 @@ const FrameSelectionPage: React.FC = () => {
               color="secondary"
               size="large"
               onClick={handleDownload}
-              sx={{ boxShadow: "none", textTransform: "none" }}
+              sx={{
+                boxShadow: "none",
+                textTransform: "none",
+                width: isMobile ? "100%" : "auto",
+              }}
             >
               Download
             </Button>

@@ -8,7 +8,7 @@ import {
   Container,
 } from "@mui/material";
 
-const frameColors = ["#ffffff", "#000000", "#4d0000", "#0e1b45", "#fce6f2"];
+const frameColors = ["#ffffff", "#000000", "#4d0000", "#0e1b45", "#1e3d1b", "#fce6f2"];
 const textures3 = [
   "./texture/3/1.png",
   "./texture/3/2.png",

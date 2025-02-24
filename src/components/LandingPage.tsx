@@ -20,11 +20,14 @@ const LandingPage: React.FC = () => {
         justifyContent="center"
         flexDirection="column"
         marginBottom={3}>
-      <Typography variant="h2" color="primary">
+      <Typography variant="h2" color="primary" align="center">
         Welcome
       </Typography>
-      <Typography variant="h6" color="primary">
+      <Typography variant="h6" color="primary" align="center">
         Capture your moment anytime, anywhere
+      </Typography>
+      <Typography variant="subtitle1" color="primary" fontFamily={'serif'} align="center">
+        Your photo will be visible only to you, and we do not collect any of your data
       </Typography>
       </Box>
 

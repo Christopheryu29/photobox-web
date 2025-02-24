@@ -24,13 +24,13 @@ const TemplateSelectionPage: React.FC = () => {
             borderRadius={2}
             p={2}
             textAlign="center"
-            sx={{ cursor: "pointer" }}
+            sx={{ cursor: "pointer", minHeight:"160px" }}
             onClick={() => handleSelectTemplate("diagonal")}
           >
             <img 
               src="/diagonal.png" 
               alt="3 Pictures (Diagonal)" 
-              style={{ width: "30%", height: "100%", borderRadius: "5px" }} 
+              style={{ maxWidth: "30%", borderRadius: "5px" }} 
             />
             <Typography color="primary" mt={2}>
               3 Pictures (Diagonal)
@@ -45,13 +45,13 @@ const TemplateSelectionPage: React.FC = () => {
             borderRadius={2}
             p={2}
             textAlign="center"
-            sx={{ cursor: "pointer" }}
+            sx={{ cursor: "pointer", minHeight:"160px" }}
             onClick={() => handleSelectTemplate("grid")}
           >
             <img 
               src="/grid.png" 
               alt="4 Pictures (2x2)" 
-              style={{ width: "45%", height: "100%", borderRadius: "5px" }} 
+              style={{ maxWidth: "45%", borderRadius: "5px" }} 
             />
             <Typography color="primary" mt={2}>
               4 Pictures (2x2)

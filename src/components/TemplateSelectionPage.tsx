@@ -12,9 +12,10 @@ const TemplateSelectionPage: React.FC = () => {
 
   return (
     <Box
-      height="85vh"
+      height={isMobile ? "100vh" : "85vh"}
       textAlign="center"
       mt={isMobile ? 5 : 10}
+      mb={isMobile ? 5 : 0}
       px={isMobile ? 2 : 0}
     >
       <Typography variant={isMobile ? "h5" : "h4"} color="primary" mb={4}>

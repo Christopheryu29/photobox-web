@@ -72,6 +72,7 @@ const PreviewImg = styled.img`
 const Placeholder = styled.div`
   font-size: 14px;
   font-weight: 500;
+  font-family: serif;
   color: black;
   text-align: center;
 `;
@@ -87,6 +88,9 @@ const DeleteButton = styled.button`
   width: 15px;
   height: 15px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     background-color: darkred;
@@ -112,6 +116,7 @@ const CaptureButton = styled.button`
   padding: ${(props) => (props.theme.isMobile ? "10px 16px" : "12px 20px")};
   font-size: ${(props) => (props.theme.isMobile ? "16px" : "20px")};
   font-weight: 600;
+  font-family: serif;
   cursor: pointer;
   border: 2px solid #ffff;
 
@@ -131,6 +136,7 @@ const WebcamButton = styled.button`
   border-radius: 8px;
   padding: ${(props) => (props.theme.isMobile ? "8px 14px" : "12px 20px")};
   font-size: ${(props) => (props.theme.isMobile ? "14px" : "17px")};
+  font-family: serif;
   cursor: pointer;
   border: 2px solid #ffff;
 
@@ -149,6 +155,7 @@ const Select = styled.select`
   border-radius: 8px;
   border: none;
   font-size: ${(props) => (props.theme.isMobile ? "14px" : "17px")};
+  font-family: serif;
   color: black;
   border: 2px solid #ffff;
 

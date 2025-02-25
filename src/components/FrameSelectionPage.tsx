@@ -64,13 +64,15 @@ const FrameSelectionPage: React.FC = () => {
     ctx.imageSmoothingEnabled = true; // Enable image smoothing
     ctx.imageSmoothingQuality = "high"; // Use high-quality smoothing
 
-    const gap = isMobile ? 8 : 10; // Smaller gap for mobile
+    const gap = 10; // Smaller gap for mobile
     const cols = images.length === 4 ? 2 : 1;
     const rows = images.length === 4 ? 2 : 3;
 
-    // Responsive size based on device
-    const photoWidth = isMobile ? 150 : images.length === 4 ? 250 : 320;
-    const photoHeight = isMobile ? 180 : images.length === 4 ? 320 : 200;
+    // Define photoWidth based on device type and number of images
+    const photoWidth = isMobile ? (images.length === 4 ? 150 : 260) : (images.length === 4 ? 200 : 320);
+
+    // Define photoHeight based on device type and number of images
+    const photoHeight = isMobile ? (images.length === 4 ? 210 : 140) : (images.length === 4 ? 260 : 200);
 
     // Additional space for "Photobox" and date
     const textHeight = 80;
@@ -83,7 +85,7 @@ const FrameSelectionPage: React.FC = () => {
     canvas.height = canvasHeight * pixelRatio;
 
     // Scale canvas to display smaller visually but keep high resolution
-    canvas.style.width = isMobile ? "100%" : `${canvasWidth}px`;
+    canvas.style.width = `${canvasWidth}px`;
     canvas.style.height = `${canvasHeight}px`;
     ctx.scale(pixelRatio, pixelRatio);
 
@@ -99,13 +101,11 @@ const FrameSelectionPage: React.FC = () => {
           canvas.height / pixelRatio
         );
         drawImages(ctx, photoWidth, photoHeight, gap, cols, rows, textHeight);
-        drawText(ctx, canvasWidth, canvasHeight, textHeight);
       };
     } else {
       ctx.fillStyle = selectedFrameColor;
       ctx.fillRect(0, 0, canvas.width / pixelRatio, canvas.height / pixelRatio);
       drawImages(ctx, photoWidth, photoHeight, gap, cols, rows, textHeight);
-      drawText(ctx, canvasWidth, canvasHeight, textHeight);
     }
   };
 
@@ -158,25 +158,6 @@ const FrameSelectionPage: React.FC = () => {
     });
   };
 
-  const drawText = (
-    ctx: CanvasRenderingContext2D,
-    canvasWidth: number,
-    canvasHeight: number,
-    textHeight: number
-  ) => {
-    const textX = canvasWidth / 2;
-    const textY = canvasHeight - textHeight + 30;
-
-    ctx.font = isMobile ? "bold 20px Arial" : "bold 30px Arial";
-    ctx.fillStyle = "#000000";
-    ctx.textAlign = "center";
-    ctx.fillText("Photobox", textX, textY);
-
-    ctx.font = isMobile ? "16px Arial" : "20px Arial";
-    ctx.fillStyle = "#555555";
-    ctx.fillText(currentDate, textX, textY + 30);
-  };
-
   useEffect(() => {
     generatePreview();
   }, [selectedFrameColor, selectedTexture, images]);
@@ -198,8 +179,8 @@ const FrameSelectionPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ textAlign: "center", mt: isMobile ? 2 : 5 }}>
-      <Typography variant="h5" gutterBottom>
+    <Container maxWidth="lg" sx={{ textAlign: "center", mt: isMobile ? 2 : 5, height: "110vh"}}>
+      <Typography variant={isMobile ? "h5" : "h4"}>
         Choose Your Frame
       </Typography>
 
@@ -210,15 +191,19 @@ const FrameSelectionPage: React.FC = () => {
           gap: 3,
           justifyContent: "center",
           alignItems: "center",
-          mt: 3,
+          mt: 5,
           mb: 5,
         }}
       >
         {/* Left Side: Canvas */}
-        <Box sx={{ width: isMobile ? "100%" : "auto" }}>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center', // Center horizontally
+          alignItems: 'center',     // Center vertically (if desired)
+          width: isMobile ? '100%' : 'auto'
+        }}>
           <canvas
             ref={canvasRef}
-            style={{ borderRadius: "10px", border: "1px solid #ccc" }}
           />
         </Box>
 

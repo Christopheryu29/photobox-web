@@ -9,18 +9,25 @@ import { Box, Typography, useMediaQuery } from "@mui/material";
 const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   position: relative;
   width: 100%;
-  max-width: ${(props) => (props.theme.isMobile ? "70%" : "600px")};
+  max-width: 600px;
   margin: 20px auto;
   overflow: hidden;
 
   video {
-    width: 100%;
-    height: 100%;
+    width: 100vw; /* Ensure full screen width on mobile */
+    height: 100vh; /* Force full height on mobile */
+    max-width: 600px; /* Limit width on desktop */
     border-radius: 15px;
     object-fit: cover;
-    border-radius: 15px;
     transform: ${(props) => (props.mirrored ? "scaleX(-1)" : "none")};
     filter: ${(props) => props.filter};
+
+    /* Force landscape mode on mobile */
+    @media (max-width: 768px) {
+      transform: rotate(90deg); /* Rotate preview for mobile */
+      width: 100vh; /* Swap width & height to enforce landscape */
+      height: 100vw;
+    }
   }
 `;
 
@@ -205,15 +212,14 @@ const CameraPage: React.FC = () => {
   const numberOfPhotos = template === "diagonal" ? 3 : 4;
 
   // Start Camera
-  // Start Camera with Enforced Landscape Mode
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          width: 1920, // Force landscape width
-          height: 1080, // Force landscape height
-          aspectRatio: 16 / 9, // Ensure landscape mode
-          facingMode: "environment", // Use rear camera (change to 'user' for front camera)
+          width: 1920, // Fixed width
+          height: 1080, // Fixed height
+          aspectRatio: 16 / 9, // Ensure landscape aspect ratio
+          facingMode: "user",
         },
         audio: false,
       });

@@ -179,7 +179,7 @@ const FrameSelectionPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ textAlign: "center", mt: isMobile ? 5 : 10, height: "110vh"}}>
+    <Container maxWidth="lg" sx={{ textAlign: "center", mt: isMobile ? 5 : 10,  height:"fit-content"}}>
       <Typography variant={isMobile ? "h5" : "h4"}>
         Choose Your Frame
       </Typography>

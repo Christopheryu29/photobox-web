@@ -12,7 +12,7 @@ const TemplateSelectionPage: React.FC = () => {
 
   return (
     <Box
-      height={isMobile ? "100vh" : "85vh"}
+      height="fit-content"
       textAlign="center"
       mt={isMobile ? 5 : 10}
       mb={isMobile ? 5 : 0}

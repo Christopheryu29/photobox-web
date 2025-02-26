@@ -18,7 +18,6 @@ const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   video {
     width: 100%;
     height: 100%;
-    border-radius: 15px;
     object-fit: cover;
     transform: ${(props) => (props.mirrored ? "scaleX(-1)" : "none")};
     filter: ${(props) => props.filter};

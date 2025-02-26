@@ -205,14 +205,15 @@ const CameraPage: React.FC = () => {
   const numberOfPhotos = template === "diagonal" ? 3 : 4;
 
   // Start Camera
+  // Start Camera with Enforced Landscape Mode
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          width: 1920, // Fixed width
-          height: 1080, // Fixed height
-          aspectRatio: 16 / 9, // Ensure landscape aspect ratio
-          facingMode: "user",
+          width: 1920, // Force landscape width
+          height: 1080, // Force landscape height
+          aspectRatio: 16 / 9, // Ensure landscape mode
+          facingMode: "environment", // Use rear camera (change to 'user' for front camera)
         },
         audio: false,
       });

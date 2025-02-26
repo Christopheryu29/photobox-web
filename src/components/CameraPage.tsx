@@ -308,11 +308,12 @@ const CameraPage: React.FC = () => {
 
   useEffect(() => {
     startCamera();
+    startCamera();
     return () => stopCamera();
   }, []);
 
   return (
-    <Box height={isMobile ? "90vh" : "85vh"} textAlign="center" mt={isMobile ? 5 : 10}>
+    <Box minHeight="fit-content" height={isMobile ? "90vh" : "85vh"} textAlign="center" mt={isMobile ? 5 : 10}>
       <Typography variant={isMobile ? "h5" : "h4"} color="primary" mb={4}>
         Take Photos ({images.filter(Boolean).length}/{numberOfPhotos})
       </Typography>

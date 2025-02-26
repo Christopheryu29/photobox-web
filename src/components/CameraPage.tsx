@@ -15,6 +15,9 @@ const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
 
   video {
     width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    object-fit: cover;
     border-radius: 15px;
     transform: ${(props) => (props.mirrored ? "scaleX(-1)" : "none")};
     filter: ${(props) => props.filter};
@@ -313,7 +316,7 @@ const CameraPage: React.FC = () => {
   }, []);
 
   return (
-    <Box minHeight="fit-content" height={isMobile ? "90vh" : "85vh"} textAlign="center" mt={isMobile ? 5 : 10}>
+    <Box minHeight="fit-content" height={isMobile ? "95vh" : "85vh"} textAlign="center" mt={isMobile ? 5 : 10}>
       <Typography variant={isMobile ? "h5" : "h4"} color="primary" mb={4}>
         Take Photos ({images.filter(Boolean).length}/{numberOfPhotos})
       </Typography>

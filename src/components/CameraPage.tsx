@@ -209,12 +209,14 @@ const CameraPage: React.FC = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          width: isMobile ? 1280 : 1920,
-          height: isMobile ? 720 : 1080,
+          width: 1920, // Fixed width
+          height: 1080, // Fixed height
+          aspectRatio: 16 / 9, // Ensure landscape aspect ratio
           facingMode: "user",
         },
         audio: false,
       });
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -256,23 +258,41 @@ const CameraPage: React.FC = () => {
   };
 
   // Capture Photo
+  // Capture Photo (Fix for iPhone Rotation Issue)
   const capturePhoto = (index: number) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
     if (video && canvas) {
       const ctx = canvas.getContext("2d");
-      // Set canvas resolution based on device
-      canvas.width = isMobile ? 1280 : 1920;
-      canvas.height = isMobile ? 720 : 1080;
+
+      // Dynamically get correct video width & height
+      const videoWidth = video.videoWidth;
+      const videoHeight = video.videoHeight;
+
+      // Fix width and height dynamically
+      if (window.innerWidth < window.innerHeight) {
+        // Mobile Portrait Mode (iPhone default)
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+      } else {
+        // Desktop or Landscape Mode
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+      }
 
       if (ctx) {
         ctx.save();
+
+        // Ensure Mirroring & Filters are applied properly
         if (isMirrored) {
           ctx.scale(-1, 1);
           ctx.translate(-canvas.width, 0);
         }
+
         ctx.filter = filter;
+
+        // Draw the image properly without rotating
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         ctx.restore();
 
@@ -316,7 +336,12 @@ const CameraPage: React.FC = () => {
   }, []);
 
   return (
-    <Box minHeight="fit-content" height={isMobile ? "95vh" : "85vh"} textAlign="center" mt={isMobile ? 5 : 10}>
+    <Box
+      minHeight="fit-content"
+      height={isMobile ? "95vh" : "85vh"}
+      textAlign="center"
+      mt={isMobile ? 5 : 10}
+    >
       <Typography variant={isMobile ? "h5" : "h4"} color="primary" mb={4}>
         Take Photos ({images.filter(Boolean).length}/{numberOfPhotos})
       </Typography>

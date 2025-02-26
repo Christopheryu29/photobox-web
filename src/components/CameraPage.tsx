@@ -9,7 +9,7 @@ import { Box, Typography, useMediaQuery } from "@mui/material";
 const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   position: relative;
   width: 100%;
-  max-width: ${(props) => (props.theme.isMobile ? "100%" : "600px")};
+  max-width: ${(props) => (props.theme.isMobile ? "70%" : "600px")};
   margin: 20px auto;
   overflow: hidden;
 
@@ -67,9 +67,9 @@ const PreviewImgContainer = styled.div`
 `;
 
 const PreviewImg = styled.img`
+  object-fit: cover;
   width: 100%;
   height: 100%;
-  object-fit: cover;
 `;
 
 const Placeholder = styled.div`

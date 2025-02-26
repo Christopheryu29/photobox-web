@@ -10,24 +10,26 @@ const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   position: relative;
   width: 100%;
   max-width: 600px;
+  aspect-ratio: 16 / 9; /* Ensures landscape aspect ratio */
   margin: 20px auto;
   overflow: hidden;
+  background: black; /* Prevents flickering */
 
   video {
-    width: 100vw; /* Ensure full screen width on mobile */
-    height: 100vh; /* Force full height on mobile */
-    max-width: 600px; /* Limit width on desktop */
+    width: 100%;
+    height: 100%;
     border-radius: 15px;
     object-fit: cover;
     transform: ${(props) => (props.mirrored ? "scaleX(-1)" : "none")};
     filter: ${(props) => props.filter};
+  }
 
-    /* Force landscape mode on mobile */
-    @media (max-width: 768px) {
-      transform: rotate(90deg); /* Rotate preview for mobile */
-      width: 100vh; /* Swap width & height to enforce landscape */
-      height: 100vw;
-    }
+  /* Ensure landscape preview on mobile */
+  @media (max-width: 768px) {
+    width: 100vw; /* Full viewport width */
+    height: 56.25vw; /* Maintain 16:9 aspect ratio */
+    max-width: 100%;
+    max-height: 100%;
   }
 `;
 

@@ -1,6 +1,11 @@
 // App.tsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Container } from "@mui/material";
 import { ThemeProvider } from "@mui/material";
 import theme from "./theme";
@@ -10,11 +15,13 @@ import CameraPage from "./components/CameraPage";
 import FrameSelectionPage from "./components/FrameSelectionPage";
 import DownloadPage from "./components/DownloadPage";
 import Footer from "./components/Footer";
+import { Analytics } from "@vercel/analytics/next";
 
 const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="md" sx={{ minHeight: "100vh", px: 3}}>
+      <Analytics />
+      <Container maxWidth="md" sx={{ minHeight: "100vh", px: 3 }}>
         <Router>
           <Routes>
             <Route path="/" element={<LandingPage />} />

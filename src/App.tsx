@@ -12,7 +12,7 @@ import TemplateSelectionPage from "./components/TemplateSelectionPage";
 import CameraPage from "./components/CameraPage";
 import FrameSelectionPage from "./components/FrameSelectionPage";
 import Footer from "./components/Footer";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/react";
 
 const App: React.FC = () => {
   return (

@@ -18,16 +18,14 @@ const WebcamContainer = styled.div<{ mirrored: boolean; filter: string }>`
   video {
     width: 100%;
     height: 100%;
-    border-radius: 15px;
     object-fit: cover;
     transform: ${(props) => (props.mirrored ? "scaleX(-1)" : "none")};
     filter: ${(props) => props.filter};
   }
 
-  /* Ensure landscape preview on mobile */
   @media (max-width: 768px) {
-    width: 100vw; /* Full viewport width */
-    height: 56.25vw; /* Maintain 16:9 aspect ratio */
+    width: 100vw;
+    height: 56.25vw;
     max-width: 100%;
     max-height: 100%;
   }
@@ -218,9 +216,9 @@ const CameraPage: React.FC = () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          width: 1920, // Fixed width
-          height: 1080, // Fixed height
-          aspectRatio: 16 / 9, // Ensure landscape aspect ratio
+          width: 1920, 
+          height: 1080,
+          aspectRatio: 16 / 9,
           facingMode: "user",
         },
         audio: false,
@@ -267,7 +265,6 @@ const CameraPage: React.FC = () => {
   };
 
   // Capture Photo
-  // Capture Photo (Fix for iPhone Rotation Issue)
   const capturePhoto = (index: number) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;

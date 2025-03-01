@@ -47,12 +47,11 @@ const FrameSelectionPage: React.FC = () => {
   const [selectedFrameColor, setSelectedFrameColor] =
     useState<string>("#ffffff");
   const [selectedTexture, setSelectedTexture] = useState<string | null>(null);
-  const [frameWidth] = useState<number>(15); // Smaller frame width for mobile
+  const [frameWidth] = useState<number>(15); 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const isMobile = useMediaQuery("(max-width: 768px)"); // Mobile breakpoint
-  const pixelRatio = isMobile ? 2 : Math.max(window.devicePixelRatio || 1, 2); // Optimize pixel ratio for mobile
-  const currentDate = new Date().toLocaleDateString(); // Get current date
+  const isMobile = useMediaQuery("(max-width: 768px)"); 
+  const pixelRatio = isMobile ? 2 : Math.max(window.devicePixelRatio || 1, 2); 
 
   const generatePreview = () => {
     const canvas = canvasRef.current;
@@ -61,10 +60,10 @@ const FrameSelectionPage: React.FC = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    ctx.imageSmoothingEnabled = true; // Enable image smoothing
-    ctx.imageSmoothingQuality = "high"; // Use high-quality smoothing
+    ctx.imageSmoothingEnabled = true; 
+    ctx.imageSmoothingQuality = "high"; 
 
-    const gap = 10; // Smaller gap for mobile
+    const gap = 10;
     const cols = images.length === 4 ? 2 : 1;
     const rows = images.length === 4 ? 2 : 3;
 
@@ -198,8 +197,8 @@ const FrameSelectionPage: React.FC = () => {
         {/* Left Side: Canvas */}
         <Box sx={{
           display: 'flex',
-          justifyContent: 'center', // Center horizontally
-          alignItems: 'center',     // Center vertically (if desired)
+          justifyContent: 'center',
+          alignItems: 'center',
           width: isMobile ? '100%' : 'auto'
         }}>
           <canvas

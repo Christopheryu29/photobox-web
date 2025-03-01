@@ -6,7 +6,7 @@ const Footer = () => {
     <Box>
       <Container maxWidth="lg" sx={{mb: 1}}>
         <Typography variant="body1" align="center" fontFamily={'serif'}>
-          Created by Christopher and Sheryl
+          © 2025. All rights reserved.
         </Typography>
       </Container>
     </Box>

@@ -1,4 +1,3 @@
-// components/ui/Provider.tsx
 import React from "react";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 
